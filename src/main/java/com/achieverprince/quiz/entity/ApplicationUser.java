@@ -1,14 +1,16 @@
 package com.achieverprince.quiz.entity;
 
-import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import java.net.Authenticator;
+import javax.persistence.*;
 
 @Entity
+@Cacheable(false)
+@Cache(usage = CacheConcurrencyStrategy.NONE)
 public class ApplicationUser {
     @Id
     @GeneratedValue
@@ -17,6 +19,7 @@ public class ApplicationUser {
     private String name;
     private String email;
     private String gender;
+    @JsonIgnore
     private String password;
 
     public ApplicationUser(){
@@ -71,10 +74,12 @@ public class ApplicationUser {
         this.gender = gender;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
 
+    @JsonProperty
     public void setPassword(String password) {
         this.password = password;
     }
