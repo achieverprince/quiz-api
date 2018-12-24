@@ -4,9 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Cascade;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.repository.cdi.Eager;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Cacheable(false)
@@ -21,6 +24,15 @@ public class ApplicationUser {
     private String gender;
     @JsonIgnore
     private String password;
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name="USER_ROLES",
+            joinColumns = @JoinColumn( name="id"),
+            inverseJoinColumns = @JoinColumn( name="role_code")
+    )
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @JsonIgnore
+    private List<Role> roles;
 
     public ApplicationUser(){
         super();
@@ -87,5 +99,13 @@ public class ApplicationUser {
     @Override
     public String toString() {
         return String.format("ApplicationUser [id=%s, name=%s, email=%s, gender=%s]", id, name, email, gender);
+    }
+
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
     }
 }

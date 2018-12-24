@@ -1,6 +1,5 @@
 package com.achieverprince.quiz.security.jwt;
 
-import com.achieverprince.quiz.entity.ApplicationUser;
 import com.achieverprince.quiz.entity.ApplicationUserLoginPOJO;
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,6 +7,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static com.achieverprince.quiz.constant.SecurityConstants.*;
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
@@ -53,8 +55,16 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             FilterChain chain,
                                             Authentication auth) throws IOException, ServletException {
 
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(auth.getAuthorities());
+        String roles[] = new String[authorities.size()];
+        for(int i=0;i<authorities.size();i++)
+        {
+            GrantedAuthority grantedAuthority = authorities.get(i);
+            roles[i] = grantedAuthority.getAuthority();
+        }
         String token = JWT.create()
                 .withSubject(((User) auth.getPrincipal()).getUsername())
+                .withArrayClaim("privileges",roles)
                 .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .sign(HMAC512(SECRET.getBytes()));
         res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);

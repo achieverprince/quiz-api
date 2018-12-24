@@ -1,8 +1,10 @@
 package com.achieverprince.quiz.security;
 
+import com.achieverprince.quiz.repository.ApplicationUserRepository;
 import com.achieverprince.quiz.security.jwt.JWTAuthenticationFilter;
 import com.achieverprince.quiz.security.jwt.JWTAuthorizationFilter;
 import com.achieverprince.quiz.service.UserDetailsServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -22,6 +24,8 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     private UserDetailsServiceImpl userDetailsService;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Autowired
+    private ApplicationUserRepository applicationUserRepository;
 
     public WebSecurity(UserDetailsServiceImpl userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userDetailsService = userDetailsService;

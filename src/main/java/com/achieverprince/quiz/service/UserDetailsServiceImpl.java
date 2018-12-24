@@ -1,8 +1,12 @@
 package com.achieverprince.quiz.service;
 
 import com.achieverprince.quiz.entity.ApplicationUser;
+import com.achieverprince.quiz.entity.Privilege;
+import com.achieverprince.quiz.entity.Role;
 import com.achieverprince.quiz.repository.ApplicationUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,7 +15,8 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 
-import static java.util.Collections.emptyList;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -25,11 +30,22 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        entityManager.clear(); //So password wont be cached
         ApplicationUser applicationUser = applicationUserRepository.findByUserName(username);
         if (applicationUser == null) {
             throw new UsernameNotFoundException(username);
         }
-        return new User(applicationUser.getUserName(), applicationUser.getPassword(), emptyList());
+        List<Role> roleList = applicationUser.getRoles();
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        for(int i=0;i<roleList.size();i++)
+        {
+            Role role = roleList.get(i);
+            List<Privilege> privileges = role.getPrivileges();
+            for(int j=0;j<privileges.size();j++)
+            {
+                GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(privileges.get(j).getPrivilegeCode());
+                authorities.add(grantedAuthority);
+            }
+        }
+        return new User(applicationUser.getUserName(), applicationUser.getPassword(), authorities);
     }
 }

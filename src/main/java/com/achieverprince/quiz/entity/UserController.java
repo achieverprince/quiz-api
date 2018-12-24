@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -15,7 +16,7 @@ public class UserController {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @RequestMapping("/users")
-    public List<ApplicationUser> retrieveAllUsers() {
+    public List<ApplicationUser> retrieveAllUsers(Principal principal) {
         return userRepository.findAll();
     }
 
